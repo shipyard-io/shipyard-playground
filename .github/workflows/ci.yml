@@ -1,0 +1,23 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [develop]
+
+jobs:
+  build:
+    uses: shipyard-io/templates/.github/workflows/reusable-build-docker.yml@main
+    with:
+      app-name: test-app
+    secrets: inherit
+
+  notify:
+    needs: [build]
+    if: always()
+    uses: shipyard-io/templates/.github/workflows/reusable-notify.yml@main
+    with:
+      app-name: test-app
+      status: ${{ needs.build.result }}
+      commit-message: ${{ github.event.head_commit.message }}
+      actor: ${{ github.actor }}
+    secrets: inherit
