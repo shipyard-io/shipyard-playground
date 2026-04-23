@@ -4,6 +4,10 @@ on:
   push:
     branches: [develop]
 
+permissions:
+  contents: read
+  packages: write
+
 jobs:
   build:
     uses: shipyard-io/templates/.github/workflows/reusable-build-docker.yml@main
