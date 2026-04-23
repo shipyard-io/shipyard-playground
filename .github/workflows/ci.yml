@@ -21,6 +21,7 @@ jobs:
     with:
       app-name: ShipYard-Playground
       image-tag: ${{ needs.build.outputs['image-tag'] }}
+      health-check-path: /
     secrets: inherit
 
   notify:
