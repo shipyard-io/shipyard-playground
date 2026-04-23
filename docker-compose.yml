@@ -44,7 +44,7 @@ services:
       - "traefik.http.routers.${APP_NAME}.tls.certresolver=letsencrypt"
 
       # service
-      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=${APP_PORT}"
+      - "traefik.http.services.${APP_NAME}.loadbalancer.server.port=80"
 
       # Shipyard
       - "shipyard.managed=true"
