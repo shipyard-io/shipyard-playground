@@ -1,4 +1,4 @@
-# shipyard-playground
+# Shipyard-playground 
 
 Demo project to test Docker build/deploy flow and reusable GitHub Actions workflows.
 
