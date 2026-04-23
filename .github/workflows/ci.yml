@@ -12,16 +12,24 @@ jobs:
   build:
     uses: shipyard-io/templates/.github/workflows/reusable-build-docker.yml@main
     with:
-      app-name: test-app
+      app-name: ShipYard-Playground
+    secrets: inherit
+
+  deploy:
+    needs: [build]
+    uses: shipyard-io/templates/.github/workflows/reusable-deploy-ssh.yml@main
+    with:
+      app-name: ShipYard-Playground
+      image-tag: ${{ needs.build.outputs['image-tag'] }}
     secrets: inherit
 
   notify:
-    needs: [build]
+    needs: [build, deploy]
     if: always()
     uses: shipyard-io/templates/.github/workflows/reusable-notify.yml@main
     with:
-      app-name: test-app
-      status: ${{ needs.build.result }}
+      app-name: ShipYard-Playground
+      status: ${{ needs.deploy.result }}
       commit-message: ${{ github.event.head_commit.message }}
       actor: ${{ github.actor }}
     secrets: inherit
