@@ -11,6 +11,8 @@ permissions:
 jobs:
   prepare:
     uses: shipyard-io/templates/.github/workflows/reusable-prepare.yml@main
+    secrets:
+      ENV_FILE_CONTENT: ${{ secrets.ENV_FILE_CONTENT }}
 
   build:
     needs: [prepare]
