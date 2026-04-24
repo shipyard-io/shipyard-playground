@@ -9,10 +9,14 @@ permissions:
   packages: write
 
 jobs:
+  prepare:
+    uses: shipyard-io/templates/.github/workflows/reusable-prepare.yml@main
+
   build:
+    needs: [prepare]
     uses: shipyard-io/templates/.github/workflows/reusable-build-docker.yml@main
     with:
-      app-name: shipyard-playground
+      app-name: ${{ needs.prepare.outputs['app-name'] }}
     secrets: inherit
 
   setup-vps:
@@ -25,20 +29,21 @@ jobs:
     secrets: inherit
 
   deploy:
-    needs: [build, setup-traefik]
+    needs: [prepare, build, setup-traefik]
     uses: shipyard-io/templates/.github/workflows/reusable-deploy-ssh.yml@main
     with:
-      app-name: shipyard-playground
+      app-name: ${{ needs.prepare.outputs['app-name'] }}
       image-tag: ${{ needs.build.outputs['image-tag'] }}
       health-check-path: /
     secrets: inherit
 
   notify:
-    needs: [build, deploy]
+    needs: [prepare, build, deploy]
     if: always()
     uses: shipyard-io/templates/.github/workflows/reusable-notify.yml@main
     with:
-      app-name: shipyard-playground
+      app-name: ${{ needs.prepare.outputs['app-name'] }}
+      app-domain: ${{ needs.prepare.outputs['app-domain'] }}
       status: ${{ needs.deploy.result }}
       commit-message: ${{ github.event.head_commit.message }}
       actor: ${{ github.actor }}
