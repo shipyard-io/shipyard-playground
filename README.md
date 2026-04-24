@@ -1,91 +1,127 @@
-# Shipyard Playground Document
+# Shipyard Playground
 
-Minimal static service (Nginx) used to validate Shipyard Docker build/deploy flow and reusable GitHub Actions workflows.
+Template ứng dụng static chạy bằng Nginx, dùng để triển khai nhanh qua Docker + GitHub Actions reusable workflows của `shipyard-io/templates`.
 
-## Tech Stack
+## Mục tiêu
 
-- Nginx (`nginx:alpine`)
-- Docker Compose
-- GitHub Actions reusable workflows (from `shipyard-io/templates`)
+- Build và push Docker image lên GHCR
+- Triển khai ứng dụng lên VPS qua SSH
+- Tự động cấu hình hạ tầng (VPS + Traefik) theo cờ `INIT_INFRA`
+- Gửi thông báo trạng thái deploy
 
-## Project Structure
+## Kiến trúc
+
+- Runtime: `nginx:alpine`
+- Orchestration: Docker Compose
+- Reverse proxy: Traefik (network ngoài `proxy`)
+- CI/CD: GitHub Actions reusable workflows
+
+## Cấu trúc thư mục
 
 ```text
 .
 ├── public/
 │   ├── index.html
 │   └── status.json
-├── docker-compose.yml
 ├── Dockerfile
+├── docker-compose.yml
+├── .env
+├── .env.example
 └── .github/workflows/ci.yml
 ```
 
-## Prerequisites
+## Biến môi trường
 
-- Docker
-- Docker Compose v2
+`docker-compose.yml` và pipeline phụ thuộc các biến sau:
 
-## Environment Variables
+- `APP_NAME`: tên ứng dụng/container (nên dùng lowercase)
+- `APP_PORT`: host port map vào container port `80`
+- `APP_DOMAIN`: domain route bởi Traefik
+- `DOCKER_IMAGE`: image repository đầy đủ, ví dụ `ghcr.io/shipyard-io/shipyard-playground`
+- `HEALTH_CHECK_PATH`: endpoint kiểm tra sau deploy, ví dụ `/`
+- `INIT_INFRA`: `true|false`, bật/tắt các job setup VPS + Traefik
 
-Copy `.env.example` to `.env` and update values:
+Ví dụ `.env`:
 
 ```env
-APP_NAME=test-app
-APP_PORT=8080
-APP_DOMAIN=test.yourdomain.com
+APP_NAME=shipyard
+APP_PORT=80
+APP_DOMAIN=shipyard.trunganh.tech
+DOCKER_IMAGE=ghcr.io/shipyard-io/shipyard-playground
+HEALTH_CHECK_PATH=/
+INIT_INFRA=true
 ```
 
-Variables:
+Lưu ý:
 
-- `APP_NAME`: container/service name and Traefik labels key.
-- `APP_PORT`: host port mapped to container port `80`.
-- `APP_DOMAIN`: domain used in Traefik router rule.
-- `GITHUB_REPOSITORY` (optional): image path in format `owner/repo`.
-  If not set, compose uses default `shipyard-io/shipyard-playground`.
+- Trên CI, workflow `prepare` đọc `.env` từ secret `ENV_FILE_CONTENT` để lấy `APP_NAME`, `APP_DOMAIN`, `HEALTH_CHECK_PATH`, `INIT_INFRA`.
+- `APP_NAME` được chuẩn hóa lowercase trong reusable workflow để đảm bảo hợp lệ khi tạo Docker image/tag.
 
-## Run Locally
+## Chạy local
 
-1. Start service:
+1. Cập nhật `.env` (hoặc copy từ `.env.example`).
+2. Chạy:
 
 ```bash
 docker compose up -d --build
 ```
 
-2. Verify container status:
+3. Kiểm tra:
 
 ```bash
 docker compose ps
+curl -I http://localhost:${APP_PORT}/
+curl http://localhost:${APP_PORT}/status.json
 ```
 
-3. Validate endpoints:
-
-- `http://localhost:<APP_PORT>/`
-- `http://localhost:<APP_PORT>/status.json`
-
-4. Stop service:
+4. Dừng:
 
 ```bash
 docker compose down
 ```
 
-## Deployment Notes
-
-- Image source: `ghcr.io/${GITHUB_REPOSITORY}:${IMAGE_TAG:-latest}`.
-- Service joins external Docker network `proxy` (required for Traefik routing).
-- Traefik labels in `docker-compose.yml` route traffic to `${APP_DOMAIN}`.
-
 ## CI/CD
 
-Workflow file: `.github/workflows/ci.yml`
+File workflow: `.github/workflows/ci.yml`
 
 Trigger:
 
-- Push to `develop`
+- `push` vào `develop` và `main`
 
-Pipeline jobs:
+Luồng pipeline:
 
-1. Build Docker image (`reusable-build-docker.yml`)
-2. Provision VPS (`reusable-provision-vps.yml`)
-3. Upgrade Traefik (`reusable-upgrade-traefik.yml`)
-4. Deploy via SSH (`reusable-deploy-ssh.yml`)
-5. Send notification (`reusable-notify.yml`)
+1. `prepare`
+   - Parse cấu hình từ `ENV_FILE_CONTENT`
+   - Export outputs dùng chung cho các job sau
+2. `build`
+   - Build/push image với tên app lấy từ `prepare`
+3. `setup-vps` (điều kiện)
+   - Chỉ chạy khi `INIT_INFRA=true`
+4. `setup-traefik` (điều kiện)
+   - Chạy sau `setup-vps` khi đủ điều kiện
+5. `deploy`
+   - Deploy image tag mới lên VPS
+   - Health check theo `HEALTH_CHECK_PATH`
+6. `notify`
+   - Gửi trạng thái deploy
+
+## Secrets bắt buộc
+
+Tối thiểu cần cấu hình các secrets sau trong GitHub repository:
+
+- `ENV_FILE_CONTENT`
+- `SSH_PRIVATE_KEY`
+- `SERVER_IP`
+- `SERVER_USER` (optional, mặc định `ubuntu`)
+- `CLOUDFLARE_ORIGIN_CERT`
+- `CLOUDFLARE_ORIGIN_KEY`
+- `DOMAIN`
+- `TRAEFIK_DASHBOARD_AUTH`
+- `TELEGRAM_BOT_TOKEN`
+- `TELEGRAM_CHAT_ID`
+
+## Lưu ý vận hành
+
+- `docker-compose.yml` dùng network ngoài `proxy`, VPS cần có network này trước khi deploy.
+- Nếu chạy nhiều app trên cùng VPS, mỗi app cần `APP_PORT` khác nhau khi vẫn publish port host.
+- Khi chỉ đi qua Traefik và không cần truy cập trực tiếp qua host port, có thể bỏ `ports` sau khi điều chỉnh health check tương ứng.
