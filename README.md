@@ -1,4 +1,4 @@
-# Shipyard Playground
+# Shipyard Playground V1
 
 Minimal static service (Nginx) used to validate Shipyard Docker build/deploy flow and reusable GitHub Actions workflows.
 
