@@ -36,7 +36,7 @@ jobs:
     with:
       app-name: ${{ needs.prepare.outputs['app-name'] }}
       image-tag: ${{ needs.build.outputs['image-tag'] }}
-      health-check-path: /
+      health-check-path: ${{ needs.prepare.outputs['health-check-path'] }}
     secrets: inherit
 
   notify:
