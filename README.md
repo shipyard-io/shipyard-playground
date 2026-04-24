@@ -40,6 +40,8 @@ Variables:
 - `APP_NAME`: container/service name and Traefik labels key.
 - `APP_PORT`: host port mapped to container port `80`.
 - `APP_DOMAIN`: domain used in Traefik router rule.
+- `GITHUB_REPOSITORY` (optional): image path in format `owner/repo`.
+  If not set, compose uses default `shipyard-io/shipyard-playground`.
 
 ## Run Locally
 
