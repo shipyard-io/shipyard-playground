@@ -12,7 +12,7 @@ jobs:
   build:
     uses: shipyard-io/templates/.github/workflows/reusable-build-docker.yml@main
     with:
-      app-name: ShipYard-Playground
+      app-name: shipyard-playground
     secrets: inherit
 
   setup-vps:
@@ -28,7 +28,7 @@ jobs:
     needs: [build, setup-traefik]
     uses: shipyard-io/templates/.github/workflows/reusable-deploy-ssh.yml@main
     with:
-      app-name: ShipYard-Playground
+      app-name: shipyard-playground
       image-tag: ${{ needs.build.outputs['image-tag'] }}
       health-check-path: /
     secrets: inherit
@@ -38,7 +38,7 @@ jobs:
     if: always()
     uses: shipyard-io/templates/.github/workflows/reusable-notify.yml@main
     with:
-      app-name: ShipYard-Playground
+      app-name: shipyard-playground
       status: ${{ needs.deploy.result }}
       commit-message: ${{ github.event.head_commit.message }}
       actor: ${{ github.actor }}
