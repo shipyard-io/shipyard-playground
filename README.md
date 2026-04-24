@@ -1,4 +1,4 @@
-# Shipyard-playground Test V3
+# Shipyard-playground Test V4
 
 Demo project to test Docker build/deploy flow and reusable GitHub Actions workflows.
 
