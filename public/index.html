@@ -1,41 +1,103 @@
 <!doctype html>
-<html lang="vi">
+<html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>APP_DOMAIN Test</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Service health landing page for APP_DOMAIN">
+  <title>APP_DOMAIN | Service Healthy</title>
   <style>
+    :root {
+      --bg: #f8fafc;
+      --surface: #ffffff;
+      --text: #0f172a;
+      --muted: #475569;
+      --border: #e2e8f0;
+      --ok: #0f766e;
+      --ok-bg: #ccfbf1;
+      --shadow: 0 16px 40px rgba(15, 23, 42, 0.08);
+      --radius: 14px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: Arial, sans-serif;
       margin: 0;
       min-height: 100vh;
+      padding: 20px;
       display: grid;
       place-items: center;
-      background: #f5f7fb;
-      color: #111827;
+      background: radial-gradient(circle at top, #e2e8f0 0, var(--bg) 45%);
+      color: var(--text);
+      font: 16px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     }
-    .card {
-      background: white;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 640px;
-      box-shadow: 0 10px 25px rgba(0,0,0,.06);
+
+    main {
+      width: min(720px, 100%);
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: clamp(20px, 4vw, 32px);
     }
-    h1 { margin: 0 0 8px; font-size: 24px; }
-    p { margin: 8px 0; line-height: 1.5; }
+
+    .status {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      margin-bottom: 10px;
+      padding: 6px 12px;
+      border-radius: 999px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--ok);
+      background: var(--ok-bg);
+    }
+
+    .dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+
+    h1 {
+      margin: 0 0 8px;
+      font-size: clamp(24px, 4vw, 34px);
+      line-height: 1.2;
+      letter-spacing: -0.02em;
+    }
+
+    p {
+      margin: 0;
+      color: var(--muted);
+    }
+
+    ul {
+      margin: 16px 0 0;
+      padding-left: 20px;
+      color: var(--muted);
+    }
+
     code {
-      background: #f3f4f6;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      background: #f1f5f9;
       border-radius: 6px;
       padding: 2px 6px;
+      color: #0f172a;
     }
   </style>
 </head>
 <body>
-  <div class="card">
+  <main>
+    <div class="status"><span class="dot" aria-hidden="true"></span>Service healthy</div>
     <h1>APP_DOMAIN reached successfully</h1>
-    <p>This is a static test page served by the Nginx container.</p>
-    <p>You can also check the JSON response at <code>/status.json</code>.</p>
-  </div>
+    <p>This page is served by the Nginx container and confirms the service is up.</p>
+    <ul>
+      <li>Health endpoint: <code>/</code></li>
+      <li>JSON status endpoint: <code>/status.json</code></li>
+    </ul>
+  </main>
 </body>
 </html>
