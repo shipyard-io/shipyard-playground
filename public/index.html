@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>APP_DOMAIN Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #f5f7fb;
+      color: #111827;
+    }
+    .card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 640px;
+      box-shadow: 0 10px 25px rgba(0,0,0,.06);
+    }
+    h1 { margin: 0 0 8px; font-size: 24px; }
+    p { margin: 8px 0; line-height: 1.5; }
+    code {
+      background: #f3f4f6;
+      border-radius: 6px;
+      padding: 2px 6px;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <h1>APP_DOMAIN reached successfully</h1>
+    <p>This is a static test page served by the Nginx container.</p>
+    <p>You can also check the JSON response at <code>/status.json</code>.</p>
+  </div>
+</body>
+</html>
